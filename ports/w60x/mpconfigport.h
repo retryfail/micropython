@@ -278,8 +278,8 @@ extern const struct _mp_obj_module_t w600_module;
 #if MICROPY_PY_THREAD
 #define MICROPY_EVENT_POLL_HOOK \
     do { \
-        extern void mp_handle_pending(void); \
-        mp_handle_pending(); \
+        extern void mp_handle_pending(bool); \
+        mp_handle_pending(true); \
         MP_THREAD_GIL_EXIT(); \
         tls_os_time_delay(1); \
         MP_THREAD_GIL_ENTER(); \
@@ -287,8 +287,8 @@ extern const struct _mp_obj_module_t w600_module;
 #else
 #define MICROPY_EVENT_POLL_HOOK \
     do { \
-        extern void mp_handle_pending(void); \
-        mp_handle_pending(); \
+        extern void mp_handle_pending(bool); \
+        mp_handle_pending(true); \
         __asm volatile ("wfi"); \
     } while (0);
 #endif
