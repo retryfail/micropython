@@ -214,6 +214,9 @@ static void mpy_task(void *param) {
     void *mp_task_heap = tls_mem_alloc(mp_task_heap_size);
 
 soft_reset:
+    printf("heap: %d\n", tls_mem_get_avail_heapsize());
+
+
     // initialise the stack pointer for the main thread
     mp_stack_set_top((void *)sp);
     mp_stack_set_limit(MPY_TASK_SIZE * sizeof(OS_STK));
@@ -258,6 +261,8 @@ soft_reset:
 #if MICROPY_PY_THREAD
     mp_thread_deinit();
 #endif
+
+    gc_sweep_all();
 
     mp_hal_stdout_tx_str("w600: soft reboot\r\n");
 
