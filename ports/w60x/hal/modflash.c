@@ -49,7 +49,7 @@
 #if MICROPY_VFS_FAT
 #define INTERVAL_FLS_BASE               (USER_ADDR_START - 0x8000)//80k (32+48)
 #define INTERVAL_FLS_LEN                (0x8000 + USER_AREA_LEN)//gz image <=352kb
-#define INTERVAL_FLS_FS_SECTOR_SIZE     (FF_MAX_SS)
+#define INTERVAL_FLS_FS_SECTOR_SIZE     (512)
 
 STATIC DRESULT w600_flash_read (BYTE *buff, DWORD sector, UINT count) {
     int result = tls_fls_read(INTERVAL_FLS_BASE + (sector * INTERVAL_FLS_FS_SECTOR_SIZE),
@@ -137,7 +137,7 @@ const mp_obj_type_t w600_flash_type = {
 #if MICROPY_VFS_LFS2
 #define INTERVAL_FLS_BASE                   USER_ADDR_START
 #define INTERVAL_FLS_LEN                    USER_AREA_LEN
-#define INTERVAL_FLS_FS_SECTOR_SIZE         (4096)
+#define INTERVAL_FLS_FS_SECTOR_SIZE         (512)
 
 STATIC int w600_flash_lfs_read(const struct lfs2_config *c, lfs2_block_t block,
                                lfs2_off_t off, void *buffer, lfs2_size_t size) {

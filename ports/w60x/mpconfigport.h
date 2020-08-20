@@ -169,7 +169,7 @@
 // fatfs configuration
 #define MICROPY_FATFS_ENABLE_LFN            (1)
 #define MICROPY_FATFS_RPATH                 (2)
-#define MICROPY_FATFS_MAX_SS                (512)
+#define MICROPY_FATFS_MAX_SS                (4096)
 #define MICROPY_FATFS_LFN_CODE_PAGE          437 /* 1=SFN/ANSI 437=LFN/U.S.(OEM) */
 #if MICROPY_VFS_FAT
 #define mp_type_fileio                      mp_type_vfs_fat_fileio
