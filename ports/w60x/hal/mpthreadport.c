@@ -58,13 +58,12 @@ typedef struct _thread_t {
 // the mutex controls access to the linked list
 STATIC mp_thread_mutex_t thread_mutex;
 STATIC thread_t thread_entry0;
-STATIC thread_t *thread; // root pointer, handled bp mp_thread_gc_others
+STATIC thread_t *thread = NULL; // root pointer, handled bp mp_thread_gc_others
 
 
 void mp_thread_init(void *stack, uint32_t stack_len) {
     mp_thread_mutex_init(&thread_mutex);
-
-    // create first entry in linked list of all threads
+    // create the first entry in the linked list of all threads
     thread = &thread_entry0;
     thread->id = xTaskGetCurrentTaskHandle();
     thread->ready = 1;
@@ -74,7 +73,6 @@ void mp_thread_init(void *stack, uint32_t stack_len) {
     thread->next = NULL;
 
     mp_thread_set_state(&mp_state_ctx.thread);
-
 }
 
 void mp_thread_gc_others(void) {
@@ -106,7 +104,7 @@ mp_state_thread_t *mp_thread_get_state(void) {
     return (mp_state_thread_t *)p;
 }
 
-void mp_thread_set_state(void *state) {
+void mp_thread_set_state(mp_state_thread_t *state) {
     mp_thread_mutex_lock(&thread_mutex, 1);
     for (thread_t *th = thread; th != NULL; th = th->next) {
         if (th->id == xTaskGetCurrentTaskHandle()) {
@@ -134,8 +132,27 @@ STATIC void freertos_entry(void *arg) {
     if (ext_thread_entry) {
         ext_thread_entry(arg);
     }
+
+    mp_thread_mutex_lock(&thread_mutex, 1);
+
+    thread_t *prev = NULL;
+    for (thread_t *th = thread; th != NULL; prev = th, th = th->next) {
+        if (th->id == xTaskGetCurrentTaskHandle()) {
+            if (prev != NULL) {
+                prev->next = th->next;
+            } else {
+                thread = th->next;
+            }
+
+            m_del(OS_STK *, th->stack, th->stack_len);
+            m_del(thread_t, th, 1);
+
+            break;
+        }
+    }
+    mp_thread_mutex_unlock(&thread_mutex);
+
     vTaskSuspend(NULL);
-    // Never get to the following lines
     for (;;) {
     }
 }
@@ -167,7 +184,7 @@ void mp_thread_create(void *(*entry)(void *), void *arg, size_t *stack_size) {
                                 0);
     if (id == NULL) {
         mp_thread_mutex_unlock(&thread_mutex);
-        mp_raise_msg(&mp_type_OSError, "can't create thread");
+        mp_raise_msg(&mp_type_OSError, MP_ERROR_TEXT("can't create thread"));
     }
 
     // add thread to linked list of all threads
@@ -188,7 +205,6 @@ void mp_thread_create(void *(*entry)(void *), void *arg, size_t *stack_size) {
 
 void mp_thread_finish(void) {
     mp_thread_mutex_lock(&thread_mutex, 1);
-    // TODO unlink from list
     for (thread_t *th = thread; th != NULL; th = th->next) {
         if (th->id == xTaskGetCurrentTaskHandle()) {
             th->ready = 0;
@@ -199,13 +215,29 @@ void mp_thread_finish(void) {
 }
 
 void mp_thread_deinit(void) {
-    // If more than the main thread exists, do a hard reset. 
-    // That will also end all threads, so cleaning is not required. 
-    // And free'ing the heap was anyhow not yet implemented
-    // If it is just the main thread, there is nothing to clean
-    if (thread && thread != &thread_entry0) {
-        tls_sys_reset();
+    mp_thread_mutex_lock(&thread_mutex, 1);
+    thread_t *prev = NULL;
+    for (thread_t *th = thread; th != NULL; prev = th, th = th->next) {
+       if (th->id == xTaskGetCurrentTaskHandle()) {
+            continue;
+        }
+
+        if (!th->ready) {
+            continue;
+        }
+
+        if (prev != NULL) {
+            prev->next = th->next;
+        } else {
+            thread = th->next;
+        }
+
+        vTaskSuspend(th->id);
+
+        m_del(OS_STK *, th->stack, th->stack_len);
+        m_del(thread_t, th, 1);
     }
+    mp_thread_mutex_unlock(&thread_mutex);
 }
 
 void mp_thread_mutex_init(mp_thread_mutex_t *mutex) {
