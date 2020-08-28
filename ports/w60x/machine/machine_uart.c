@@ -86,7 +86,7 @@ STATIC void machine_uart_init_helper(machine_uart_obj_t *self, size_t n_args, co
         self->uartcfg.charlength = TLS_UART_CHSIZE_8BIT;
         break;
     default:
-        mp_raise_ValueError("invalid data bits");
+        mp_raise_ValueError(MP_ERROR_TEXT("invalid data bits"));
         break;
     }
 
@@ -115,7 +115,7 @@ STATIC void machine_uart_init_helper(machine_uart_obj_t *self, size_t n_args, co
         self->uartcfg.stopbits = TLS_UART_TWO_STOPBITS;
         break;
     default:
-        mp_raise_ValueError("invalid stop bits");
+        mp_raise_ValueError(MP_ERROR_TEXT("invalid stop bits"));
         break;
     }
 
@@ -128,13 +128,13 @@ STATIC mp_obj_t machine_uart_make_new(const mp_obj_type_t *type, size_t n_args, 
     // get uart id
     mp_int_t uart_num = mp_obj_get_int(args[0]);
     if (uart_num < TLS_UART_0 || uart_num >= TLS_UART_2) {
-        nlr_raise(mp_obj_new_exception_msg_varg(&mp_type_ValueError, "UART(%d) does not exist", uart_num));
+        nlr_raise(mp_obj_new_exception_msg_varg(&mp_type_ValueError, MP_ERROR_TEXT("UART(%d) does not exist"), uart_num));
     }
 
     // Attempts to use UART0 from Python has resulted in all sorts of fun errors.
     // FIXME: UART0 is disabled for now.
     if (uart_num == TLS_UART_0) {
-        nlr_raise(mp_obj_new_exception_msg_varg(&mp_type_ValueError, "UART(%d) is disabled (dedicated to REPL)", uart_num));
+        nlr_raise(mp_obj_new_exception_msg_varg(&mp_type_ValueError, MP_ERROR_TEXT("UART(%d) is disabled (dedicated to REPL)"), uart_num));
     }
 
     // Defaults

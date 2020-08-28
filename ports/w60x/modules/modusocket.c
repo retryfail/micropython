@@ -110,7 +110,7 @@ static int _socket_getaddrinfo2(const mp_obj_t host, const mp_obj_t portx, struc
 }
 
 int _socket_getaddrinfo(const mp_obj_t addrtuple, struct addrinfo **resp) {
-    mp_uint_t len = 0;
+    size_t len = 0;
     mp_obj_t *elem;
     mp_obj_get_array(addrtuple, &len, &elem);
     if (len != 2) return -1;

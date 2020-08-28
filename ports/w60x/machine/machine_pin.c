@@ -31,6 +31,7 @@
 
 #include "wm_include.h"
 
+#include "py/gc.h"
 #include "py/obj.h"
 #include "py/runtime.h"
 #include "py/mphal.h"
@@ -177,7 +178,7 @@ STATIC void machine_pin_isr_handler(void *arg) {
 
 STATIC inline machine_pin_obj_t *mp_obj_to_pin_obj(mp_obj_t pin) {
     if (mp_obj_get_type(pin) != &machine_pin_type) {
-        mp_raise_ValueError("expecting a pin");
+        mp_raise_ValueError(MP_ERROR_TEXT("expecting a pin"));
     }
     return MP_OBJ_TO_PTR(pin);
 }
@@ -286,7 +287,7 @@ mp_obj_t mp_pin_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, 
         self = pin_idx_to_pin_obj(wanted_pin);
     }
     if (self == NULL || self->base.type == NULL) {
-        mp_raise_ValueError("invalid pin");
+        mp_raise_ValueError(MP_ERROR_TEXT("invalid pin"));
     }
 
     if (n_args > 1 || n_kw > 0) {

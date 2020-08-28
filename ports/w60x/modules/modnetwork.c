@@ -67,7 +67,7 @@ static bool wifi_sta_connected = false;
 STATIC void require_if(mp_obj_t wlan_if, int if_no) {
     wlan_if_obj_t *self = MP_OBJ_TO_PTR(wlan_if);
     if (self->if_id != if_no) {
-        mp_raise_msg(&mp_type_OSError, if_no == IEEE80211_MODE_INFRA ? "STA mode required" : "SoftAP mode required");
+        mp_raise_msg(&mp_type_OSError, MP_ERROR_TEXT(if_no == IEEE80211_MODE_INFRA ? "STA mode required" : "SoftAP mode required"));
     }
 }
 
@@ -119,7 +119,7 @@ STATIC mp_obj_t set_wlan(size_t n_args, const mp_obj_t *args) {
     } else if (idx == IEEE80211_MODE_AP) {
         return MP_OBJ_FROM_PTR(&wlan_ap_obj);
     } else {
-        mp_raise_ValueError("invalid WLAN interface identifier");
+        mp_raise_ValueError(MP_ERROR_TEXT("invalid WLAN interface identifier"));
     }
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(set_wlan_obj, 0, 1, set_wlan);
@@ -163,7 +163,7 @@ STATIC mp_obj_t w600_connect(size_t n_args, const mp_obj_t *pos_args, mp_map_t *
 
     // configure any parameters that are given
     if (n_args > 1) {
-        mp_uint_t len;
+        size_t len;
         const char *p;
         if (args[ARG_ssid].u_obj != mp_const_none) {
             p = mp_obj_str_get_data(args[ARG_ssid].u_obj, &len);
@@ -275,7 +275,7 @@ STATIC mp_obj_t w600_status(size_t n_args, const mp_obj_t *args) {
         return MP_OBJ_NEW_SMALL_INT(-currbss.rssi);
     }
     default:
-        mp_raise_ValueError("unknown status param");
+        mp_raise_ValueError(MP_ERROR_TEXT("unknown status param"));
     }
 
     return mp_const_none;
@@ -403,7 +403,7 @@ STATIC mp_obj_t w600_ifconfig(size_t n_args, const mp_obj_t *args) {
             // check for the correct string
             const char *mode = mp_obj_str_get_str(args[1]);
             if ((self->if_id != IEEE80211_MODE_INFRA) || strcmp("dhcp", mode)) {
-                mp_raise_ValueError("invalid arguments");
+                mp_raise_ValueError(MP_ERROR_TEXT("invalid arguments"));
             }
             tls_dhcp_start();
         }
@@ -417,7 +417,7 @@ extern u8 *wpa_supplicant_get_mac(void);
 extern void wpa_supplicant_set_mac(u8 *mac);
 STATIC mp_obj_t w600_config(size_t n_args, const mp_obj_t *args, mp_map_t *kwargs) {
     if (n_args != 1 && kwargs->used != 0) {
-        mp_raise_TypeError("either pos or kw args are allowed");
+        mp_raise_TypeError(MP_ERROR_TEXT("either pos or kw args are allowed"));
     }
 
     wlan_if_obj_t *self = MP_OBJ_TO_PTR(args[0]);
@@ -435,7 +435,7 @@ STATIC mp_obj_t w600_config(size_t n_args, const mp_obj_t *args, mp_map_t *kwarg
                     mp_buffer_info_t bufinfo;
                     mp_get_buffer_raise(kwargs->table[i].value, &bufinfo, MP_BUFFER_READ);
                     if (bufinfo.len != 6) {
-                        mp_raise_ValueError("invalid buffer length");
+                        mp_raise_ValueError(MP_ERROR_TEXT("invalid buffer length"));
                     }
                     wpa_supplicant_set_mac(bufinfo.buf);
                     tls_set_mac_addr(bufinfo.buf);
@@ -501,7 +501,7 @@ STATIC mp_obj_t w600_config(size_t n_args, const mp_obj_t *args, mp_map_t *kwarg
     // Get config
 
     if (n_args != 2) {
-        mp_raise_TypeError("can query only one param");
+        mp_raise_TypeError(MP_ERROR_TEXT("can query only one param"));
     }
 
     int req_if = -1;
@@ -550,7 +550,7 @@ STATIC mp_obj_t w600_config(size_t n_args, const mp_obj_t *args, mp_map_t *kwarg
     return val;
 
 unknown:
-    mp_raise_ValueError("unknown config param");
+    mp_raise_ValueError(MP_ERROR_TEXT("unknown config param"));
 }
 
 STATIC MP_DEFINE_CONST_FUN_OBJ_KW(w600_config_obj, 1, w600_config);
@@ -559,7 +559,7 @@ STATIC mp_obj_t w600_oneshot(size_t n_args, const mp_obj_t *args) {
     wlan_if_obj_t *self = MP_OBJ_TO_PTR(args[0]);
 
     if (self->if_id != IEEE80211_MODE_INFRA) {
-        mp_raise_TypeError("Support only in sta mode");
+        mp_raise_TypeError(MP_ERROR_TEXT("Support only in sta mode"));
     }
 
     if (n_args > 1) {

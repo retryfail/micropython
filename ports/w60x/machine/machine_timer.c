@@ -144,7 +144,7 @@ STATIC mp_obj_t machine_timer_init(mp_uint_t n_args, const mp_obj_t *args, mp_ma
     } else if (dargs[ARG_callback].u_obj == mp_const_none) {
         self->callback = NULL;
     } else {
-        mp_raise_ValueError("callback must be a function");
+        mp_raise_ValueError(MP_ERROR_TEXT("callback must be a function"));
     }
 
     if (NULL != self->stimer) {

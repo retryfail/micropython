@@ -87,28 +87,28 @@ STATIC void w600_pwm_init_helper(w600_pwm_obj_t *self,
     int tval = args[ARG_channel].u_int;
     if ((tval < 0) || (tval > 4)) {
         nlr_raise(mp_obj_new_exception_msg_varg(&mp_type_ValueError,
-                                                "Bad channel %d", tval));
+                                                MP_ERROR_TEXT("Bad channel %d"), tval));
     }
     self->channel = tval;
 
     tval = args[ARG_freq].u_int;
     if ((tval < 1) || (tval > 156250)) {
         nlr_raise(mp_obj_new_exception_msg_varg(&mp_type_ValueError,
-                                                "Bad frequency %d", tval));
+                                                MP_ERROR_TEXT("Bad frequency %d"), tval));
     }
     self->freq = tval;
 
     tval = args[ARG_duty].u_int;
     if ((tval < 0) || (tval > 255)) {
         nlr_raise(mp_obj_new_exception_msg_varg(&mp_type_ValueError,
-                                                "Bad duty %d", tval));
+                                                MP_ERROR_TEXT("Bad duty %d"), tval));
     }
     self->duty = tval;
 
     tval = args[ARG_pnum].u_int;
     if ((tval < 0) || (tval > 255)) {
         nlr_raise(mp_obj_new_exception_msg_varg(&mp_type_ValueError,
-                                                "Bad period num %d", tval));
+                                                MP_ERROR_TEXT("Bad period num %d"), tval));
     }
     self->pnum = tval;
 
@@ -162,7 +162,7 @@ STATIC mp_obj_t w600_pwm_freq(size_t n_args, const mp_obj_t *args) {
     int tval = mp_obj_get_int(args[1]);
     if ((tval < 1) || (tval > 156250)) {
         nlr_raise(mp_obj_new_exception_msg_varg(&mp_type_ValueError,
-                                                "Bad frequency %d", tval));
+                                                MP_ERROR_TEXT("Bad frequency %d"), tval));
     }
     tls_pwm_freq_set(self->channel, tval);
     self->freq = tval;
@@ -185,7 +185,7 @@ STATIC mp_obj_t w600_pwm_duty(size_t n_args, const mp_obj_t *args) {
     duty = mp_obj_get_int(args[1]);
     if ((duty < 0) || (duty > 255)) {
         nlr_raise(mp_obj_new_exception_msg_varg(&mp_type_ValueError,
-                                                "Bad duty %d", duty));
+                                                MP_ERROR_TEXT("Bad duty %d"), duty));
     }
     tls_pwm_duty_set(self->channel, duty);
     self->duty = duty;

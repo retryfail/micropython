@@ -61,6 +61,7 @@ int mp_hal_stdin_rx_chr(void) {
             tls_os_time_delay(1);
         }
     }
+    return 0;
 }
 
 // Send string of given length
@@ -96,7 +97,7 @@ void mp_hal_stdout_tx_strn_cooked(const char *str, size_t len) {
 }
 
 STATIC s16 uart_rx_callback(u16 len) {
-    int c;
+    u8 c;
     while(tls_uart_read(TLS_UART_0, &c, 1) > 0) {
         if (c == mp_interrupt_char) {
             // inline version of mp_keyboard_interrupt();
@@ -111,6 +112,7 @@ STATIC s16 uart_rx_callback(u16 len) {
             ringbuf_put(&stdin_ringbuf, c);
         }
     }
+    return 0;
 }
 
 void uart_init(void) {
