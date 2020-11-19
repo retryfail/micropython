@@ -72,14 +72,20 @@ STATIC mp_obj_t machine_freq(size_t n_args, const mp_obj_t *args) {
     } else {
         // set
         mp_int_t freq = mp_obj_get_int(args[0]) / 1000000;
-        if (freq != 40 && freq != 80) {
-            mp_raise_ValueError("frequency can only be either 40MHz or 80MHz");
+        if (freq != 40 && freq != 80 && freq != 160) {
+            mp_raise_ValueError(MP_ERROR_TEXT("frequency can only be either 40MHz or 80MHz"));
         }
-        if (40 == freq) {
-            tls_sys_clk_set(CPU_CLK_40M);
-        } else {
-            tls_sys_clk_set(CPU_CLK_80M);
-        }
+
+	u32 RegValue;
+	u8 wlanDiv, cpuDiv = 160/freq;
+
+	RegValue = tls_reg_read32(HR_CLK_DIV_CTL);
+	wlanDiv = (RegValue>>4)&0x0F;
+	RegValue &= 0xFFFFF000;
+	RegValue |= 0x80000000;
+	RegValue |= ((wlanDiv*4/cpuDiv)<<8) | (wlanDiv<<4) | cpuDiv;
+	tls_reg_write32(HR_CLK_DIV_CTL, RegValue);
+
         tls_os_timer_init();
         return mp_const_none;
     }
@@ -88,7 +94,7 @@ STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(machine_freq_obj, 0, 1, machine_freq)
 
 STATIC mp_obj_t machine_sleep_helper(sleep_type_t sleep_type, size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
     if (n_args == 0) {
-        mp_raise_ValueError("invalid param format");
+        mp_raise_ValueError(MP_ERROR_TEXT("invalid param format"));
     }
 
     enum {ARG_operate, ARG_sleep_s};
@@ -105,12 +111,12 @@ STATIC mp_obj_t machine_sleep_helper(sleep_type_t sleep_type, size_t n_args, con
     switch(sleep_type) {
     case MP_PS_SLEEP:
         if (n_args != 1)
-            mp_raise_ValueError("invalid param format");
+            mp_raise_ValueError(MP_ERROR_TEXT("invalid param format"));
         tls_wl_if_ps(operate);//MP_OP_PS_WAKEUP,MP_OP_PS_SLEEP
         break;
     case MP_DEEP_SLEEP:
         if (n_args != 2)
-            mp_raise_ValueError("invalid param format");
+            mp_raise_ValueError(MP_ERROR_TEXT("invalid param format"));
         mp_int_t sleeptime = args[ARG_sleep_s].u_int;
         tls_wl_if_standby(operate, 0, sleeptime);//MP_OP_GPIO_WAKEUP,MP_OP_TIMER_WAKEUP
         break;
