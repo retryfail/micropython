@@ -383,6 +383,18 @@ STATIC mp_obj_t machine_pin_irq(size_t n_args, const mp_obj_t *pos_args, mp_map_
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_KW(machine_pin_irq_obj, 1, machine_pin_irq);
 
+// pin.function([value])
+STATIC mp_obj_t machine_pin_function(size_t n_args, const mp_obj_t *args) {
+    machine_pin_obj_t *self = mp_obj_to_pin_obj(args[0]);
+    if (n_args == 1) {
+        return MP_OBJ_NEW_SMALL_INT(tls_io_cfg_get(self->id));
+    } else {
+	tls_io_cfg_set(self->id, mp_obj_get_int(args[1]));
+        return mp_const_none;
+    }
+}
+STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(machine_pin_function_obj, 1, 2, machine_pin_function);
+
 STATIC const mp_rom_map_elem_t machine_pin_locals_dict_table[] = {
     // instance methods
     { MP_ROM_QSTR(MP_QSTR_init), MP_ROM_PTR(&machine_pin_init_obj) },
@@ -390,6 +402,7 @@ STATIC const mp_rom_map_elem_t machine_pin_locals_dict_table[] = {
     { MP_ROM_QSTR(MP_QSTR_off), MP_ROM_PTR(&machine_pin_off_obj) },
     { MP_ROM_QSTR(MP_QSTR_on), MP_ROM_PTR(&machine_pin_on_obj) },
     { MP_ROM_QSTR(MP_QSTR_irq), MP_ROM_PTR(&machine_pin_irq_obj) },
+    { MP_ROM_QSTR(MP_QSTR_function), MP_ROM_PTR(&machine_pin_function_obj) },
 
     // class constants
     { MP_ROM_QSTR(MP_QSTR_OPEN_DRAIN), MP_ROM_INT(GPIO_MODE_OPEN_DRAIN) },
