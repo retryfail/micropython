@@ -15,6 +15,8 @@
 
 // emitters
 #define MICROPY_PERSISTENT_CODE_LOAD        (1)
+#define MICROPY_EMIT_THUMB                  (1)
+#define MICROPY_EMIT_INLINE_THUMB           (1)
 
 // compiler configuration
 #define MICROPY_COMP_MODULE_CONST           (1)
@@ -264,7 +266,7 @@ extern const struct _mp_obj_module_t w600_module;
 // type definitions for the specific machine
 
 #define BYTES_PER_WORD (4)
-#define MICROPY_MAKE_POINTER_CALLABLE(p) ((void*)((mp_uint_t)(p)))
+#define MICROPY_MAKE_POINTER_CALLABLE(p) ((void *)((mp_uint_t)(p) | 1))
 #define MP_PLAT_PRINT_STRN(str, len) mp_hal_stdout_tx_strn_cooked(str, len)
 #define MP_SSIZE_MAX (0x7fffffff)
 
