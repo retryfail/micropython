@@ -42,6 +42,9 @@
 #include "lib/utils/pyexec.h"
 #include "mphalport.h"
 
+#include "FreeRTOS.h"
+#include "task.h"
+
 #define CNT_START_VALUE (0xffffffff)
 static uint32_t ticks_hi_word = 0;
 static uint32_t ticks_per_us = 40;
@@ -105,7 +108,7 @@ STATIC inline void delay(uint32_t us) {
         uint32_t start = tls_reg_read32(HR_WDG_CUR_VALUE);
         uint32_t diff = (us - 4) * ticks_per_us;
         while((start - tls_reg_read32(HR_WDG_CUR_VALUE)) < diff) {
-            ;
+            vTaskDelay(diff);
         }
     }
 }
@@ -129,6 +132,7 @@ void mp_hal_delay_ms(uint32_t ms) {
             // (at least) the SysTick interrupt).
             MICROPY_EVENT_POLL_HOOK
             tls_os_time_delay(1);
+            taskYIELD();
         }
 
         if (ms < 2) {
