@@ -43,3 +43,6 @@ user.props
 # Generated rst files
 ######################
 genrst/
+/.vs/micropython/v15/.suo
+/.vs/slnx.sqlite
+/.vs/VSWorkspaceState.json
