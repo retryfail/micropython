@@ -132,59 +132,59 @@ static void init_spiflash_fs (void) {
     // It is set to the internal flash filesystem by default.
     MP_STATE_PORT(vfs_cur) = vfs;
 
-#if MICROPY_VFS_FAT
+//#if MICROPY_VFS_FAT
 
-    f_chdir(&vfs_fs->fatfs, "/");
+//    f_chdir(&vfs_fs->fatfs, "/");
 
     // Make sure we have a /flash/boot.py.  Create it if needed.
-    res = f_stat(&vfs_fs->fatfs, "/boot.py", &fno);
-    if (res != FR_OK) { // doesn't exist, create fresh file
-        FIL fp;
-        f_open(&vfs_fs->fatfs, &fp, "/boot.py", FA_WRITE | FA_CREATE_ALWAYS);
-        UINT n;
-        f_write(&fp, fresh_boot_py, sizeof(fresh_boot_py) - 1 /* don't count null terminator */, &n);
+//    res = f_stat(&vfs_fs->fatfs, "/boot.py", &fno);
+//    if (res != FR_OK) { // doesn't exist, create fresh file
+//        FIL fp;
+//        f_open(&vfs_fs->fatfs, &fp, "/boot.py", FA_WRITE | FA_CREATE_ALWAYS);
+//        UINT n;
+//        f_write(&fp, fresh_boot_py, sizeof(fresh_boot_py) - 1 /* don't count null terminator */, &n);
         // TODO check we could write n bytes
-        f_close(&fp);
-    }
+//        f_close(&fp);
+//    }
 
-    res = f_stat(&vfs_fs->fatfs, "/main.py", &fno);
-    if (res != FR_OK) {
+//    res = f_stat(&vfs_fs->fatfs, "/main.py", &fno);
+//    if (res != FR_OK) {
         // create empty main.py
-        f_open(&vfs_fs->fatfs, &fp, "/main.py", FA_WRITE | FA_CREATE_ALWAYS);
-        UINT n;
-        f_write(&fp, fresh_main_py, sizeof(fresh_main_py) - 1 /* don't count null terminator */, &n);
+//        f_open(&vfs_fs->fatfs, &fp, "/main.py", FA_WRITE | FA_CREATE_ALWAYS);
+//        UINT n;
+//        f_write(&fp, fresh_main_py, sizeof(fresh_main_py) - 1 /* don't count null terminator */, &n);
         // TODO check we could write n bytes
-        f_close(&fp);
-    }
-#endif
-#if MICROPY_VFS_LFS2
+//        f_close(&fp);
+//    }
+//#endif
+//#if MICROPY_VFS_LFS2
     /* In the LittleFS file system, 
        each directory occupies at least 2 sectors, 
        and each file occupies at least 1 sector. 
     */
 
     //Initialize the current working directory (cwd)
-    vstr_init(&(vfs_fs->cur_dir), 16);
-    vstr_add_str(&(vfs_fs->cur_dir), "/");
+//    vstr_init(&(vfs_fs->cur_dir), 16);
+//    vstr_add_str(&(vfs_fs->cur_dir), "/");
 
     // Make sure we have a /flash/boot.py.  Create it if needed.
-    res = lfs2_stat(&vfs_fs->lfs, "/boot.py", &fno);
-    if (res != LFS2_ERR_OK) { // doesn't exist, create fresh file
-        lfs2_file_open(&vfs_fs->lfs, &fp, "/boot.py", LFS2_O_WRONLY | LFS2_O_CREAT);
-        lfs2_file_write(&vfs_fs->lfs, &fp, fresh_boot_py, sizeof(fresh_boot_py) - 1);
+//    res = lfs2_stat(&vfs_fs->lfs, "/boot.py", &fno);
+//    if (res != LFS2_ERR_OK) { // doesn't exist, create fresh file
+//        lfs2_file_open(&vfs_fs->lfs, &fp, "/boot.py", LFS2_O_WRONLY | LFS2_O_CREAT);
+//        lfs2_file_write(&vfs_fs->lfs, &fp, fresh_boot_py, sizeof(fresh_boot_py) - 1);
         // TODO check we could write bytes
-        lfs2_file_close(&vfs_fs->lfs, &fp);
-    }
+//        lfs2_file_close(&vfs_fs->lfs, &fp);
+//    }
 
-    res = lfs2_stat(&vfs_fs->lfs, "/main.py", &fno);
-    if (res != LFS2_ERR_OK) {
-        // create empty main.py
-        lfs2_file_open(&vfs_fs->lfs, &fp, "/main.py", LFS2_O_WRONLY | LFS2_O_CREAT);
-        lfs2_file_write(&vfs_fs->lfs, &fp, fresh_main_py, sizeof(fresh_main_py) - 1);
-        // TODO check we could write bytes
-        lfs2_file_close(&vfs_fs->lfs, &fp);
-    }
-#endif
+//    res = lfs2_stat(&vfs_fs->lfs, "/main.py", &fno);
+//    if (res != LFS2_ERR_OK) {
+//        // create empty main.py
+//        lfs2_file_open(&vfs_fs->lfs, &fp, "/main.py", LFS2_O_WRONLY | LFS2_O_CREAT);
+//        lfs2_file_write(&vfs_fs->lfs, &fp, fresh_main_py, sizeof(fresh_main_py) - 1);
+//        // TODO check we could write bytes
+//        lfs2_file_close(&vfs_fs->lfs, &fp);
+//    }
+//#endif
 }
 #endif
 
